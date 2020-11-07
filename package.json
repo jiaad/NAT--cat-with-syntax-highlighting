@@ -1,0 +1,14 @@
+{
+  "name": "cat",
+  "version": "1.0.0",
+  "description": "cat",
+  "main": "node",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "nat": "./lib/node"
+  },
+  "author": "jiad abdul",
+  "license": "MIT"
+}

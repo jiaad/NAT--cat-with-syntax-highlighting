@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+const fs  = require('fs')
+const util = require('util')
+
+
+const readFile = util.promisify(fs.readFile)
+
+class Cat {
+  constructor() {
+    
+  }
+  async bFlag(file){
+    let arr = file.split(/\r?\n/)
+    let i = 1
+    for (const line of arr) {
+      if(line !== ''){
+        process.stdout.write("     " + i++ + "  " + line + (line !== arr[arr.length - 1] ? "\n" : '' ))
+      }else{
+        process.stdout.write('\n')
+      }
+    }
+  }
+  async  main() {
+    let argv = process.argv.slice(2)
+
+    try {
+    if(argv.length > 1 && argv[0][0] === '-'){
+      let file = await readFile(argv[1], { encoding : "utf8" })
+      if(argv[0].includes('b')){
+        await this.bFlag(file)
+      }
+    }else{
+      let file = await readFile(argv[0], { encoding : "utf8" })
+      process.stdout.write(file)
+    }
+    } catch (e) {
+      process.stdout.write('File does not exists')
+    }
+
+  }
+}
+
+let cat = new Cat()
+cat.main()
