@@ -1,14 +1,32 @@
 #!/usr/bin/env node
 const fs  = require('fs')
 const util = require('util')
+const Color = require('color');
+const colors = require('colors');
+const { stdin } = require('process');
+const readLine = require('readline');
+const lineByline = require('n-readlines');
+let syntaxeHighlighter = require('./syntaxes');
+
 
 
 const readFile = util.promisify(fs.readFile)
+
+
+const sysInfo = require('./sys');
+let l = Color.rgb([99,235,0])
+
+colors.setTheme({
+  lightGreenCst: 'brightGreen'
+})
 
 class Cat {
   constructor() {
     
   }
+
+
+
   async bFlag(file){
     let arr = file.split(/\r?\n/)
     let i = 1
@@ -20,6 +38,42 @@ class Cat {
       }
     }
   }
+
+  highLighter(line){
+    let separated = line.split(/(\s)/)
+    // console.log(separated)
+    
+      separated.map(value => {
+      let reg = new RegExp(/(if|includes|class|function|else|while|for|else|var|const|let|{|}|split.)/g)
+      let split = value.split(reg)
+      // let trimmedSplit = split.length > 0 && split[0] === "" && split[1] !== undefined ? [...split].slice(1) : split
+      let trimmedSplit = split
+      // console.log(value)
+      trimmedSplit.map((str, index) => {
+        let regOne = new RegExp(/(includes|class|function|else|while|for|var|const|let|split.)/g)
+        let parenthesis = new RegExp(/({|})/g)
+        let regCond = new RegExp(/(if|else)/)
+        if(str.match(regOne))
+          process.stdout.write(str.brightGreen)
+        else if (str.match(regCond))
+          process.stdout.write(str.brightBlue)
+        else if (str.match(parenthesis))
+          process.stdout.write(str.brightCyan)
+        else{
+          process.stdout.write( str)
+        }
+      })
+    })
+
+    process.stdout.write('\n')
+
+  }
+
+  readLineByLine(path){
+    return readLine.createInterface({
+      input: fs.createReadStream(path),
+    })
+  }
   async  main() {
     let argv = process.argv.slice(2)
 
@@ -29,14 +83,21 @@ class Cat {
       if(argv[0].includes('b')){
         await this.bFlag(file)
       }
-    }else{
-      let file = await readFile(argv[0], { encoding : "utf8" })
-      process.stdout.write(file)
+    } else{
+      if(argv[0] === "sys"){
+        sysInfo()
+      }else{
+        let rl = this.readLineByLine(argv[0])
+        let s = ""
+        rl.on('line', (line) => {
+          this.highLighter(line)              
+        })
+      }
     }
     } catch (e) {
-      process.stdout.write('File does not exists')
-    }
+      process.stdout.write('File does not exists     -> ' + e)
 
+    }
   }
 }
 
