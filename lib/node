@@ -44,23 +44,38 @@ class Cat {
     // console.log(separated)
     
       separated.map(value => {
-      let reg = new RegExp(/(if|includes|class|function|else|while|for|else|var|const|let|{|}|split.)/g)
+      let reg = new RegExp(/(if|class|function|else|while|for|else|var|const|let|{|}|=|split)/g)
       let split = value.split(reg)
+      // console.log("LINE ->" + split)
       // let trimmedSplit = split.length > 0 && split[0] === "" && split[1] !== undefined ? [...split].slice(1) : split
       let trimmedSplit = split
       // console.log(value)
       trimmedSplit.map((str, index) => {
-        let regOne = new RegExp(/(includes|class|function|else|while|for|var|const|let|split.)/g)
-        let parenthesis = new RegExp(/({|})/g)
+        let regOne = new RegExp(/(class|function|else|while|for|var|const|let|split)/g)
+        let parenthesis = new RegExp(/({|}|=)/g)
         let regCond = new RegExp(/(if|else)/)
         if(str.match(regOne))
-          process.stdout.write(str.brightGreen)
+          process.stdout.write(str.brightYellow)
         else if (str.match(regCond))
           process.stdout.write(str.brightBlue)
         else if (str.match(parenthesis))
           process.stdout.write(str.brightCyan)
         else{
-          process.stdout.write( str)
+          if(str.includes('.')){
+            let reg = new RegExp(/(\.|\([^()]+\))/g) // dots and parenthesis
+            let spl = str.split(reg)
+            spl.map((le, idx) => {// obligé de refaire un map car il y a un nouveau array
+              if(le === '.')
+                process.stdout.write(le.brightCyan)
+              else if(spl[idx -1] === '.'){
+                process.stdout.write(le.brightCyan)
+              }else
+                process.stdout.write(le)
+            })
+            // process.stdout.write(str.red)
+          }
+          else
+          process.stdout.write(str)
         }
       })
     })
